@@ -1,34 +1,254 @@
 """ Hangman, the game"""
 import random
-
+import os
+import time
 
 class Word:
-    def __init__(self, name, length, letters):
+    def __init__(self, name):
         self.name = name
         self.length = len(name)
-        self.letters = what_letters(name)
+        self.letters = self.what_letters()
 
     def what_letters(self):
         letters = {}
         position = 0
         for letter in self.name:
             if letter in letters:
-                letters[letter] = position
-            letters[letter][self.name.count(letter)]
-        position += 1
+                letters[letter].append(position)
+            else:
+                letters[letter] = [position]
+            position += 1
         return letters
 
-'''
-Importar:
-- random
-- llistes de paraules
+def the_game():
+    game_points = 0
+    while game_points < 6:
 
-Classe:
-- Paraula - atributs: número de lletres
+        new_letter = input('Introduce your letter guess: ')
+        check_letter(new_letter)
 
-Funcions:
-- "Manager" - Joc
-- Triar idioma i paraula
-- Comptador
-- Dibuixar hangman
-- '''
+        os.system('clear')
+        if new_letter in guess_letters:
+            print('Hey, you already said this one! See?')
+        if new_letter not in guess_letters:
+            guess_letters.append(new_letter)
+            if new_letter in hidden_word.letters:
+                print(random.choice(['Great!', 'Well done!', 'Ouh yesss!',
+                                     'You think you are smart, ain\'t you?']))
+            if new_letter not in hidden_word.letters:
+                print(random.choice(['Man... This is going to hurt...',
+                                     'Are you sure... I don\'t think so...',
+                                     'Hey, hey, hey... "Hang" in there boy!',
+                                     'Let\'s keep trying pal...']))
+                game_points += 1
+        print_game(game_points)
+        print_the_word(guess_letters)
+        print(game_points)
+
+    os.system('clear')
+    print_game(game_points)
+    print('\n'*3, '----> GAME OVER <----', '\n'*2, 'Hope next time you save the guy...\n')
+
+def check_letter(letter):
+    while True:
+        if letter.isalpha():
+            if len(letter) == 1:
+                break
+        letter = input('Your guess needs to be a letter! Don\'t mess around and enter your guess ---> ')
+
+def print_the_word(guesses):
+    the_word = [None] * hidden_word.length
+    for guess in guesses:
+        if guess in hidden_word.letters:
+            place = hidden_word.letters[guess]
+            for j in place:
+                the_word[j] = guess
+    return print(the_word)
+
+
+def print_game(points):
+    print('Guesses so far --> ', guess_letters)
+
+    if points == 0:
+        print('''
+      ============================== 
+      ||    //                     |
+      ||   //
+      ||  //
+      || //
+      ||
+      ||
+      ||
+      ||
+      ||
+      ||
+      ||
+      ||
+      ||
+      ||
+      ||
+      ||
+      ||
+      ||
+      ||
+######################################################################
+            ''')
+
+    if points == 1:
+        print('''
+      ============================== 
+      ||    //                     |
+      ||   //                     ###
+      ||  //                     #o#o#
+      || //                       #~#
+      ||
+      ||
+      ||
+      ||
+      ||
+      ||
+      ||
+      ||
+      ||
+      ||
+      ||
+      ||
+      ||
+      ||
+      ||
+######################################################################
+            ''')
+
+    if points == 2:
+        print('''
+      ============================== 
+      ||    //                     |
+      ||   //                     ###
+      ||  //                     #o#o#
+      || //                       #~#
+      ||                           |
+      ||                           |
+      ||                           |
+      ||                           |
+      ||                           |
+      ||
+      ||
+      ||
+      ||
+      ||
+      ||
+      ||
+      ||
+      ||
+      ||
+######################################################################
+            ''')
+
+    if points == 3:
+        print('''
+      ============================== 
+      ||    //                     |
+      ||   //                     ###
+      ||  //                     #o#o#
+      || //                       #~#
+      ||                           |
+      ||                           |
+      ||                           |
+      ||                           |
+      ||                           |
+      ||                          /
+      ||                         /
+      ||                        /
+      ||                     __/
+      ||
+      ||
+      ||
+      ||
+      ||
+      ||
+######################################################################
+            ''')
+
+    if points == 4:
+        print('''
+      ============================== 
+      ||    //                     |
+      ||   //                     ###
+      ||  //                     #O#O#
+      || //                       #O#
+      ||                           |
+      ||                           |
+      ||                           |
+      ||                           |
+      ||                           |
+      ||                          / \\
+      ||                         /   \\
+      ||                        /     \\
+      ||                     __/       \\__
+      ||
+      ||
+      ||
+      ||
+      ||
+      ||
+######################################################################
+            ''')
+
+    if points == 5:
+        print('''
+      ============================== 
+      ||    //                     |
+      ||   //                     ###
+      ||  //                     #O#O#
+      || //                       #O#
+      ||                           |
+      ||                          /|
+      ||                         / |
+      ||                        /  |
+      ||                       /   |
+      ||                      O   / \\
+      ||                         /   \\
+      ||                        /     \\
+      ||                     __/       \\__
+      ||
+      ||
+      ||
+      ||
+      ||
+      ||
+######################################################################
+            ''')
+
+    if points == 6:
+        print('''
+      ============================== 
+      ||    //                     |
+      ||   //                     ###
+      ||  //                     #X#X#
+      || //                       #O#
+      ||                           |
+      ||                          /|\\
+      ||                         / | \\
+      ||                        /  |  \\
+      ||                       /   |   \\
+      ||                      O   / \\  O
+      ||                         /   \\
+      ||                        /     \\
+      ||                     __/       \\__
+      ||
+      ||
+      ||
+      ||
+      ||
+      ||
+######################################################################
+            ''')
+
+
+hidden_word = Word(input('What is the word you want your friend to guess? --> '))
+os.system('clear')
+
+print('Let the game begin!\n\nWelcome, player!\nYou know how the HangMan works, right?\nThen go ahead and smash it!\n')
+guess_letters = []
+
+the_game()
