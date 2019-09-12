@@ -42,8 +42,16 @@ def the_game():
                                      'Let\'s keep trying pal...']))
                 game_points += 1
         print_game(game_points)
-        print_the_word(guess_letters)
+        the_word = print_the_word(guess_letters)
         print(game_points)
+
+
+        if None not in the_word:
+            os.system('clear')
+            print_game(game_points)
+            print_the_word(guess_letters)
+            print('\n' * 3, '----> YOU WON! <----', '\n' * 2, 'Well done, the guy will live to see another day...\n\n')
+            exit()
 
     os.system('clear')
     print_game(game_points)
@@ -63,8 +71,15 @@ def print_the_word(guesses):
             place = hidden_word.letters[guess]
             for j in place:
                 the_word[j] = guess
-    return print(the_word)
-
+    replacement = {'None':'__'}
+    print(' ' * 5, end='')
+    for i in the_word:
+        if i == None:
+            print('__ ', end='')
+        else:
+            print(i, ' ', end='')
+    print('\n\n')
+    return the_word
 
 def print_game(points):
     print('Guesses so far --> ', guess_letters)
@@ -250,5 +265,6 @@ os.system('clear')
 
 print('Let the game begin!\n\nWelcome, player!\nYou know how the HangMan works, right?\nThen go ahead and smash it!\n')
 guess_letters = []
+print_the_word(guess_letters)
 
 the_game()
