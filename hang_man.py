@@ -24,18 +24,17 @@ def the_game():
     game_points = 0
     while game_points < 6:
 
-        new_letter = input('Introduce your letter guess: ')
-        check_letter(new_letter)
+        new_letter = check_letter(input('Introduce your letter guess: '))
 
         os.system('clear')
-        if new_letter in guess_letters:
+        if new_letter.lower() in guess_letters:
             print('Hey, you already said this one! See?')
-        if new_letter not in guess_letters:
-            guess_letters.append(new_letter)
-            if new_letter in hidden_word.letters:
+        if new_letter.lower() not in guess_letters:
+            guess_letters.append(new_letter.lower())
+            if new_letter in hidden_word.letters or new_letter.swapcase() in hidden_word.letters:
                 print(random.choice(['Great!', 'Well done!', 'Ouh yesss!',
                                      'You think you are smart, ain\'t you?']))
-            if new_letter not in hidden_word.letters:
+            else:
                 print(random.choice(['Man... This is going to hurt...',
                                      'Are you sure... I don\'t think so...',
                                      'Hey, hey, hey... "Hang" in there boy!',
@@ -55,12 +54,14 @@ def the_game():
 
     os.system('clear')
     print_game(game_points)
-    print('\n'*3, '----> GAME OVER <----', '\n'*2, 'Hope next time you save the guy...\n')
+    print_the_word(hidden_word.what_letters())
+    print('\n'*2, '----> GAME OVER <----', '\n'*2, 'Hope next time you save the guy...\n')
 
 def check_letter(letter):
     while True:
-        if letter.isalpha():
+        if letter.isalnum():
             if len(letter) == 1:
+                return letter
                 break
         letter = input('Your guess needs to be a letter! Don\'t mess around and enter your guess ---> ')
 
@@ -71,7 +72,14 @@ def print_the_word(guesses):
             place = hidden_word.letters[guess]
             for j in place:
                 the_word[j] = guess
-    replacement = {'None':'__'}
+        if guess.upper() in hidden_word.letters:
+            place = hidden_word.letters[guess.upper()]
+            for j in place:
+                the_word[j] = guess.upper()
+    for key in hidden_word.letters:
+        if key.isalnum() != True:
+            for i in hidden_word.letters[key]:
+                the_word[i] = key
     print(' ' * 5, end='')
     for i in the_word:
         if i == None:
