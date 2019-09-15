@@ -27,27 +27,56 @@ def the_game():
         new_letter = check_letter(input('Introduce your letter guess: '))
 
         os.system('clear')
-        if new_letter.lower() in guess_letters:
-            print('Hey, you already said this one! See?')
-        if new_letter.lower() not in guess_letters:
-            guess_letters.append(new_letter.lower())
-            if new_letter in hidden_word.letters or new_letter.swapcase() in hidden_word.letters:
-                print(random.choice(['Great!', 'Well done!', 'Ouh yesss!',
-                                     'You think you are smart, ain\'t you?']))
-            else:
-                print(random.choice(['Man... This is going to hurt...',
-                                     'Are you sure... I don\'t think so...',
-                                     'Hey, hey, hey... "Hang" in there boy!',
-                                     'Let\'s keep trying pal...']))
-                game_points += 1
+        if new_letter in ['a', 'e', 'i', 'o', 'u']:
+            new_letter_list = accents(new_letter)
+        else:
+            new_letter_list = [new_letter]
+
+        for letter in new_letter_list:
+            if letter.lower() in guess_letters:
+                print('Hey, you already said this one! See?')
+            if letter.lower() not in guess_letters:
+                guess_letters.append(letter.lower())
+                if letter in hidden_word.letters or letter.swapcase() in hidden_word.letters:
+                    print(random.choice(['Great!', 'Well done!', 'Ouh yesss!',
+                                         'You think you are smart, ain\'t you?']))
+                else:
+                    print(random.choice(['Man... This is going to hurt...',
+                                         'Are you sure... I don\'t think so...',
+                                         'Hey, hey, hey... "Hang" in there boy!',
+                                         'Let\'s keep trying pal...']))
+                    game_points += 1
         print_game(game_points)
         the_word = print_the_word(guess_letters)
-        print(game_points)
 
 
         if None not in the_word:
             os.system('clear')
-            print_game(game_points)
+            print('''
+      ============================== 
+      ||    //                     |     
+      ||   //                     """
+      ||  //                                        "                       
+      || //                                      " O "
+      ||                                    ###   / "
+      ||                                   #o#o# / "
+      ||                                    #W# / "
+      ||                             " O     |/ "
+      ||                               " \\  /|
+      ||                                " \\/ |
+      ||                                  "  |
+      ||                                     |
+      ||                                    / \\ "
+      ||                                   /   \\ "
+      ||                                " /    / "
+      ||                               " /    / "
+      ||                              " /   " \\ "
+      ||                              "  "     "
+      ||                            
+######################################################################
+
+                        ''')
+
             print_the_word(guess_letters)
             print('\n' * 3, '----> YOU WON! <----', '\n' * 2, 'Well done, the guy will live to see another day...\n\n')
             exit()
@@ -64,6 +93,42 @@ def check_letter(letter):
                 return letter
                 break
         letter = input('Your guess needs to be a letter! Don\'t mess around and enter your guess ---> ')
+
+def accents(letter):
+    letter_list = []
+    if letter == 'a':
+        for i in ['a', 'à', 'á', 'â', 'ä']:
+            if i in hidden_word.letters:
+                letter_list.append(i)
+            if i.upper() in hidden_word.letters:
+                letter_list.append(i.upper())
+    if letter == 'e':
+        for i in ['e', 'è', 'é', 'ê', 'ë']:
+            if i in hidden_word.letters:
+                letter_list.append(i)
+            if i.upper() in hidden_word.letters:
+                letter_list.append(i.upper())
+    if letter == 'i':
+        for i in ['i', 'ì', 'í', 'î', 'ï']:
+            if i in hidden_word.letters:
+                letter_list.append(i)
+            if i.upper() in hidden_word.letters:
+                letter_list.append(i.upper())
+    if letter == 'o':
+        for i in ['o', 'ò', 'ó', 'ô', 'ö']:
+            if i in hidden_word.letters:
+                letter_list.append(i)
+            if i.upper() in hidden_word.letters:
+                letter_list.append(i.upper())
+    if letter == 'u':
+        for i in ['u', 'ù', 'ú', 'û', 'ü']:
+            if i in hidden_word.letters:
+                letter_list.append(i)
+            if i.upper() in hidden_word.letters:
+                letter_list.append(i.upper())
+    else:
+        letter_list = [letter]
+    return letter_list
 
 def print_the_word(guesses):
     the_word = [None] * hidden_word.length
