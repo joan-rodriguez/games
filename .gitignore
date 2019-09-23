@@ -1,6 +1,5 @@
 # Ignore the following folders:
-/.idea
-/__pycache__
-/.git
-/venv
+.idea/
+__pycache__/
+venv/
 
