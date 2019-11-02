@@ -359,10 +359,13 @@ do you want to play?\na) Player vs Player\nb) Player vs Machine\n--> ').lower()
             break
 
         elif game_option == 'b':
-            language = input('\nOk, then. What language do you want to use?\n\
-- English (E)\n- Spanish (S)\n--> ').upper()
+
             while True:
-                if language in ['E', 'S']:
+                language = input('\nOk, then. What language do you want to use?\n\
+- English (E)\n- Spanish (S)\n--> ').upper()
+                print('language is: {}'.format(language))
+                if language in ('E', 'S'):
+                    print('I am here!')
                     word = get_hidden_word(language)
                     break
                 else:
