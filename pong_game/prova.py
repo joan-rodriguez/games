@@ -1,4 +1,5 @@
 import os
+import pygame
 import turtle
 
 
@@ -35,6 +36,7 @@ height_screen = 600
 wn.setup(width=width_screen, height=height_screen)    # Width and height in pixels.
 wn.tracer(0)
 wn.update()
+clock = pygame.time.Clock()
 
 # Score
 score_a = 0
@@ -67,8 +69,8 @@ ball.shape("square")  # Sets paddle shape.
 ball.color("white")  # Sets paddle color.
 ball.penup()  # To avoid drawing line while moving.
 ball.goto(0, 0)  # Sets starting position.
-ball.dx = 1
-ball.dy = 1
+ball.dx = 5
+ball.dy = 5
 
 # Pen
 pen = turtle.Turtle()
@@ -87,6 +89,7 @@ wn.onkeypress(paddle_b_down, "Down")
 
 while True:
     wn.update()
+    clock.tick(24)
 
     # Move the ball
     ball.setx(ball.xcor() + ball.dx)
