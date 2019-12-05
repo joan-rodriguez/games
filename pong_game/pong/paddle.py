@@ -19,6 +19,7 @@ class Paddle:
         self.paddle.goto(pos_x, pos_y)  # Sets starting position.
 
     def paddle_up(self):
+        print('I am paddling up!')
         y = self.paddle.ycor()
         y += 20
         self.paddle.sety(y)
