@@ -1,4 +1,6 @@
 """Simple Pong game."""
+import pong.game
+
 
 if __name__ == "__main__":
-    game = pong.game()
+    pong.game.start_game()
