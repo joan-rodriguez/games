@@ -1,4 +1,6 @@
 """This file generates window objects."""
+import pygame
+import time
 import turtle
 from pong.paddle import Paddle
 from pong.ball import Ball
@@ -23,6 +25,8 @@ def start_game():
     wn_width = 800
     wn_height = 600
     wn = create_window("Pong", wn_width, wn_height)
+    clock = pygame.time.Clock()
+    start_time = time.time()
 
     # Paddle A
     paddle_a = Paddle("A", -(wn_width / 2 - 50))
@@ -49,9 +53,11 @@ def start_game():
 
     while True:
         wn.update()
+        clock.tick(24)
+        playing_time = time.time() - start_time
 
         # Move the ball around, check borders and act accordingly
-        ball.move()
+        start_time = ball.move(start_time, playing_time)
         score = ball.check_border(wn_width, wn_height, pen, score)
 
         # Paddle and ball collisions
