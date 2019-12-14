@@ -1,6 +1,7 @@
 import os
-import pygame
 import turtle
+
+import pygame
 
 
 def paddle_a_up():
@@ -28,12 +29,12 @@ def paddle_b_down():
 
 
 # Windows
-wn = turtle.Screen()               # Creates one window.
+wn = turtle.Screen()  # Creates one window.
 wn.title("prova")
-wn.bgcolor("black")                # Background color.
+wn.bgcolor("black")  # Background color.
 width_screen = 800
 height_screen = 600
-wn.setup(width=width_screen, height=height_screen)    # Width and height in pixels.
+wn.setup(width=width_screen, height=height_screen)  # Width and height in pixels.
 wn.tracer(0)
 wn.update()
 clock = pygame.time.Clock()
@@ -48,8 +49,8 @@ paddle_a.speed(0)  # Sets paddle speed (0 = Max speed).
 paddle_a.shape("square")  # Sets paddle shape.
 paddle_a.color("white")  # Sets paddle color.
 paddle_a.shapesize(stretch_wid=5, stretch_len=1)  # Sets bar-shape.
-paddle_a.penup()    # To avoid drawing line while moving.
-paddle_a_init = -(width_screen/2 - 50)
+paddle_a.penup()  # To avoid drawing line while moving.
+paddle_a_init = -(width_screen / 2 - 50)
 paddle_a.goto(paddle_a_init, 0)  # Sets starting position.
 
 # Paddle B
@@ -59,7 +60,7 @@ paddle_b.shape("square")  # Sets paddle shape.
 paddle_b.color("white")  # Sets paddle color.
 paddle_b.shapesize(stretch_wid=5, stretch_len=1)  # Sets bar-shape.
 paddle_b.penup()  # To avoid drawing line while moving.
-paddle_b_init = width_screen/2 - 50
+paddle_b_init = width_screen / 2 - 50
 paddle_b.goto(paddle_b_init, 0)  # Sets starting position.
 
 # Ball
@@ -78,7 +79,7 @@ pen.speed(0)
 pen.color("white")
 pen.penup()
 pen.hideturtle()
-pen.goto(0, height_screen/2 - 40)
+pen.goto(0, height_screen / 2 - 40)
 pen.write("Player A: 0  Player B: 0", align="center", font=("Courier", 24, "bold"))
 
 wn.listen()
@@ -96,24 +97,24 @@ while True:
     ball.sety(ball.ycor() + ball.dy)
 
     # Border checking
-    if ball.ycor() > (height_screen/2-10):
-        ball.sety(height_screen/2-10)
+    if ball.ycor() > (height_screen / 2 - 10):
+        ball.sety(height_screen / 2 - 10)
         ball.dy *= -1
-        os.system("aplay pong/bounce.wav&")
+        self.play_sound()
 
-    if ball.ycor() < (-(height_screen/2-10)):
-        ball.sety(-(height_screen/2-10))
+    if ball.ycor() < (-(height_screen / 2 - 10)):
+        ball.sety(-(height_screen / 2 - 10))
         ball.dy *= -1
-        os.system("aplay pong/bounce.wav&")
+        self.play_sound()
 
-    if ball.xcor() > (width_screen/2-10):
+    if ball.xcor() > (width_screen / 2 - 10):
         ball.goto(0, 0)
         ball.dx *= -1
         score_a += 1
         pen.clear()
         pen.write("Player A: {}  Player B: {}".format(score_a, score_b), align="center", font=("Courier", 24, "bold"))
 
-    if ball.xcor() < (-(width_screen/2-10)):
+    if ball.xcor() < (-(width_screen / 2 - 10)):
         ball.goto(0, 0)
         ball.dx *= -1
         score_b += 1
@@ -121,14 +122,14 @@ while True:
         pen.write("Player A: {}  Player B: {}".format(score_a, score_b), align="center", font=("Courier", 24, "bold"))
 
     # Paddle and ball collisions
-    if ball.xcor() > (paddle_b_init - 10)\
-            and ball.ycor() < (paddle_b.ycor() + 50) and ball.ycor() > (paddle_b.ycor() - 50):
+    if ball.xcor() > (paddle_b_init - 10) \
+            and (paddle_b.ycor() + 50) > ball.ycor() > (paddle_b.ycor() - 50):
         ball.setx(paddle_b_init - 10)
         ball.dx *= -1
-        os.system("aplay pong/bounce.wav&")
+        self.play_sound()
 
-    if ball.xcor() < (paddle_a_init + 10)\
-            and ball.ycor() < (paddle_a.ycor() + 50) and ball.ycor() > (paddle_a.ycor() - 50):
+    if ball.xcor() < (paddle_a_init + 10) \
+            and (paddle_a.ycor() + 50) > ball.ycor() > (paddle_a.ycor() - 50):
         ball.setx(paddle_a_init + 10)
         ball.dx *= -1
-        os.system("aplay pong/bounce.wav&")
+        self.play_sound()

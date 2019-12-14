@@ -2,34 +2,44 @@
 import turtle
 
 
-class Paddle:
-    def __init__(self, player, pos_x):
+# Inheritance
+class Paddle(turtle.Turtle):
 
-        self.paddle = turtle.Turtle()   # Creates "Turtle object".
-        self.player = player            # Specific player.
+    # Class attribute
+    paddle_wid = 5
+    delta = 20  # Define the pixels to move each time.
 
-        """Settings:"""
-        self.paddle.speed(0)            # Sets paddle speed (0 = Max speed).
-        self.paddle.shape("square")     # Sets paddle shape.
-        self.paddle.color("white")      # Sets paddle color.
-        self.paddle_wid = 5
-        self.paddle.shapesize(stretch_wid=self.paddle_wid, stretch_len=1)     # Sets bar-shape.
+    def __init__(self, player, init_pos_x, init_pos_y=0):
+        super().__init__()
 
-        self.paddle.penup()             # To avoid drawing line while moving.
+        # Instance attributes
+        self.player = player  # Specific player.
 
-        self.pos_x = pos_x
-        self.pos_y = 0
-        self.paddle.goto(self.pos_x, self.pos_y)  # Sets starting position.
+        # Bring to init position
+        self.initialise_paddle(init_pos_x, init_pos_y)
+
+    def initialise_paddle(self, init_pos_x, init_pos_y):
+        """Initialise paddle parameters & bring it to starting point."""
+        self.speed(0)  # Sets paddle speed (0 = Max speed).
+        self.shape("square")  # Sets paddle shape.
+        self.color("white")  # Sets paddle color.
+        self.shapesize(stretch_wid=self.paddle_wid, stretch_len=1)  # Sets bar-shape.
+        self.penup()  # To avoid drawing line while moving.
+
+        # Sets starting position.
+        self.setx(init_pos_x)
+        self.sety(init_pos_y)
 
     def paddle_up(self):
-        y = self.paddle.ycor()
-        y += 20
-        self.paddle.sety(y)
+        self.sety(
+            self.ycor() + self.delta
+        )
 
     def paddle_down(self):
-        y = self.paddle.ycor()
-        y -= 20
-        self.paddle.sety(y)
+        self.sety(
+            self.ycor() - self.delta
+        )
 
-    def position_y(self):
-        return self.paddle.ycor()
+    # Getter
+    def get_position_y(self):
+        return self.ycor()
