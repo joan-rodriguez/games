@@ -1,95 +1,160 @@
 class Combatant:
-    def __init__(self):
+    # Combatant class generation that will have combatants information
 
-        self.name = input('What is the combatant name? ')
-        self.initiative = int(input('What is its initiative? '))
-        self.pg = int(input('What is its PG? '))
+    def __init__(self, name=None, initiative='Nothing', pg='Nothing'):
+        # Combatant class object can be defined when called. Otherwise, system will ask:
 
-        self.array = {'Name': self.name, 'Init': self.initiative, 'PG': self.pg}
+        self.order = 0
+        self.name = self.define_name(name)
+        self.initiative = self.define_initiative(self.name, initiative)
+        self.pg = self.define_pg(self.name, pg)
+
+        self.combatant = [self.order, self.name, self.initiative, self.pg]
+
+        print()
+
+    def define_name(self, name):
+        if name == None:
+            return input('What is the name of this combatant? --> ')
+        else:
+            return name
+
+    def define_initiative(self, name, initiative):
+        return check_input(name, initiative, 'Initiative')
+
+    def define_pg(self, name, pg):
+        return check_input(name, pg, 'PG')
+
+
 
 
 class Manager:
+    # This class will be managing the game.
+
     def __init__(self):
+        # combat container is generated:
+        combat = []
 
-        self.combat = []
-        self.order()
+        # Options for menu are generated:
+        # self.options = {0: self.general_status, 1: self.attack,
+        #                 2: self.delay_action, 3: self.add_status, 4: self.conduct_delayed_action,
+        #                 5: self.add_combatant, 6: self.exit}
 
-    def attack(self, name, damage):
-        for p in self.combat:
-            if p['Name'] == name:
-                p['PG'] = p['PG'] - damage
+        self.initialize_combat(combat)
+        self.arrange_combat(combat)
 
-                print()
-                print('----->  Now {} has {} PG!!'.format(p['Name'], p['PG']))
-                print()
+        print(combat)
+        self.display_menu()
 
-                if p['PG'] < 0:
-                    if self.check_death(p['PG']) is True:
-                        self.combat.remove(p)
+    def initialize_combat(self, combat):
+        # Creates combatants and adds them to the combat container:
 
-    def check_death(self, pg):
-        dead = input('Is this combatant with {} dead? [Enter to skip] '.format(pg))
-        if dead.lower() == 'y':
-            print()
-            return True
+        Aiwe = Combatant('Aiwe', 'Vaya', 17)
+        Klescknuk = Combatant('Klescknuk')
+        # Mal = Combatant()
 
-    def check_attacked(self, name):
-        for p in self.combat:
-            if p['Name'] == name:
-                return True
+        self.add_combatant(Aiwe.combatant, combat)
+        self.add_combatant(Klescknuk.combatant, combat)
 
-    def order(self):
+    def add_combatant(self, combatant, combat):
+        # This function adds a new combatant
 
-        while True:
-            combatant = Combatant()
-            self.combat.append(combatant.array)
+        combat.append(combatant)
 
-            more = input('\n Are there more combatants? (Y/N) ')
-            print()
-            if more.lower() == 'n' or more == '':
-                break
+    def arrange_combat(self, combat):
+        # This function is used to sort combatants as per initiative values.
 
-        self.combat.sort(key=lambda x: x.get('Init'), reverse=True)
-
-    def print_turno(self, turno):
-        print('~~~~~~~~~~~~~~~~~~~~~~\n--ROUND #{}--\n~~~~~~~~~~~~~~~~~~~~~~'.format(turno))
-        print('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~')
-        for p in self.combat:
-            print(p)
-        print('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~')
-        print()
-
-    def run(self):
-        turno = 0
-
-        while True:
-            turno += 1
-            self.print_turno(turno)
-
-            for i in self.combat:
-                print('{} -- {}PG\n------------------------------'.format(i['Name'], i['PG']))
-                attacked = input('Does it attack? If so, to whom? [Enter to skip] ')
-
-                while True:
+        for i in combat:
+            for j in combat:
+                if i[2] == j[2] and i[1] != j[1]:
                     while True:
-                        if self.check_attacked(attacked) is True:
+                        who = input('{} and {} have the same initiative value. Who should go first? --> '.format(
+                            i[1],j[1]))
+                        if i[1] == who:
+                            i[2] += 0.01
                             break
-
-                        if attacked == '':
-                            print()
+                        elif j[1] == who:
+                            j[2] += 0.01
                             break
+                        else:
+                            print('I am not asking about {}...\n'.format(who))
 
-                        attacked = input('This individual does not exist (anymore?). Now, does it attack? '
-                                         'If so, to whom? [Enter to skip] ')
+        combat.sort(key=lambda x: x[2],reverse=True)
+        num = 0
 
-                    if attacked == '':
-                        print()
-                        break
+        # After sorting combatants container, a sorting number is added to every combatant (first column):
+        for i in combat:
+            num += 1
+            i[0] = num
 
-                    damage = int(input('How much damage does it make? '))
-                    self.attack(attacked, damage)
-                    attacked = input('Does it attack again? If so, to whom? [Enter to skip] ')
+    def display_menu(self):
+        # Displays main menu:
+
+        print("""
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+|   o---|==== Menu =====>   |
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+| 0- General Status         |
+|                           |
+| 1- Attack                 |
+| 2- Delay Action           |
+| 3- Add Status             |
+|                           |
+| 4- Conduct Delayed Action |
+| 5- Add Combatant          |
+|                           |
+| 6- Exit                   |
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+""")
+
+    # def run(self):
+    #     while True:
+    #         self.display_menu()
+    #
+    #         option = input('What will the option be? --> ')
+    #
+    #         valid_option = None
+    #
+    #         if option.isdecimal():
+    #             option = int(option)
+    #
+    #             if option in self.options:
+    #                 valid_option = True
+    #
+    #                 # Equivalent
+    #                 self.options[option]()
+    #
+    #                 input('\n<enter>\n')
+    #
+    #             elif option == 6:
+    #                 print('\nToday\'s combat is over, but the adventure hasn\'t finished yet...\n')
+    #                 exit()
+    #
+    #         if not valid_option:
+    #             print('I\'m sorry, you need to enter one of the options (number)')
+
+
+def check_input(name, value, characteristic):
+    # This check will be used specifically to check whether input is a number or not.
+    # 'If' will be useful for initialization of combatants.
+
+    if value == 'Nothing':
+        value = input('What is {}\'s {} value? --> '.format(name, characteristic))
+
+    # Common part for every check_input():
+    while True:
+        try:
+            value = int(value)
+        except ValueError:
+            value = input('{} has to be a number. What is {}\'s initiative value? --> '.format(characteristic, name,
+                                                                                               characteristic))
+
+        if isinstance(value, int):
+            break
+
+    # Returns a value that is always an int:
+    return value
 
 
 if __name__ == '__main__':
-    Manager().run()
+    Manager()
