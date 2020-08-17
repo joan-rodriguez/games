@@ -20,10 +20,10 @@ class Combatant:
             return name
 
     def define_initiative(self, name, initiative):
-        return check_input(name, initiative, 'Initiative')
+        return check_number(initiative, 'Initiative', name)
 
     def define_pg(self, name, pg):
-        return check_input(name, pg, 'PG')
+        return check_number(pg, 'PG', name)
 
 
 
@@ -33,39 +33,31 @@ class Manager:
 
     def __init__(self):
         # combat container is generated:
-        combat = []
+        self.combat = []
 
         # Options for menu are generated:
         # self.options = {0: self.general_status, 1: self.attack,
         #                 2: self.delay_action, 3: self.add_status, 4: self.conduct_delayed_action,
         #                 5: self.add_combatant, 6: self.exit}
 
-        self.initialize_combat(combat)
-        self.arrange_combat(combat)
+        self.initialize_combat()
 
-        print(combat)
+        print(self.combat)
         self.display_menu()
+        self.attack(self.combat[0])
+        self.general_status()
 
-    def initialize_combat(self, combat):
-        # Creates combatants and adds them to the combat container:
-
-        Aiwe = Combatant('Aiwe', 'Vaya', 17)
-        Klescknuk = Combatant('Klescknuk')
-        # Mal = Combatant()
-
-        self.add_combatant(Aiwe.combatant, combat)
-        self.add_combatant(Klescknuk.combatant, combat)
-
-    def add_combatant(self, combatant, combat):
+    def add_combatant(self, combatant):
         # This function adds a new combatant
 
-        combat.append(combatant)
+        self.combat.append(combatant)
+        self.arrange_combat()
 
-    def arrange_combat(self, combat):
+    def arrange_combat(self):
         # This function is used to sort combatants as per initiative values.
 
-        for i in combat:
-            for j in combat:
+        for i in self.combat:
+            for j in self.combat:
                 if i[2] == j[2] and i[1] != j[1]:
                     while True:
                         who = input('{} and {} have the same initiative value. Who should go first? --> '.format(
@@ -79,33 +71,133 @@ class Manager:
                         else:
                             print('I am not asking about {}...\n'.format(who))
 
-        combat.sort(key=lambda x: x[2],reverse=True)
+        self.combat.sort(key=lambda x: x[2],reverse=True)
         num = 0
 
         # After sorting combatants container, a sorting number is added to every combatant (first column):
-        for i in combat:
+        for i in self.combat:
             num += 1
             i[0] = num
 
-    def display_menu(self):
-        # Displays main menu:
+    def attack(self, attacker):
+        # Attacker attacks to an individual in combat.
+        # Following part identifies individual being attacked:
 
-        print("""
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-|   o---|==== Menu =====>   |
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-| 0- General Status         |
-|                           |
-| 1- Attack                 |
-| 2- Delay Action           |
-| 3- Add Status             |
-|                           |
-| 4- Conduct Delayed Action |
-| 5- Add Combatant          |
-|                           |
-| 6- Exit                   |
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-""")
+        injured = check_name(input('Who is {} attacking to? --> '.format(attacker[1])), self.combat)
+        while True:
+            if injured != 'No one':
+                break
+            injured = check_name(input('This individual is not part of the combat. Who is {} attacking '
+                                       'to? --> '.format(attacker[1])), self.combat)
+
+
+        # Following part checks damage and subtracts it from PGs:
+        damage = check_number(input('How much damage does {} do? --> '.format(attacker[1])), 'Damage')
+        self.combat[injured][3] -= damage
+
+        print('{}\'s PG are now {}!!'.format(self.combat[injured][1], self.combat[injured][3]))
+
+        # It also has into account if resulting PG are negative:
+        if self.combat[injured][3] < 0:
+            dead = 'Maybe'
+            while True:
+                if dead.upper() == 'Y':
+                    self.erase_combatant(injured)
+                    print()
+                    break
+                elif dead.upper() == 'N':
+                    print()
+                    break
+                else:
+                    dead = input(
+                        'Is {} dead with {} PG? (Y/N) --> '.format(self.combat[injured][1], self.combat[injured][3]))
+
+    def display_menu(self):
+            # Displays main menu:
+
+            print("""
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    |   o---|==== Menu =====>   |
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    | 0- General Status         | --> OK
+    |                           |
+    | 1- Attack                 | --> Are there more attacks?
+    | 2- Delay Action           | --> Pending
+    | 3- Add Status             | --> Pending
+    |                           |
+    | 4- Conduct Delayed Action | --> Pending
+    | 5- Add Combatant          | --> OK
+    |                           |
+    | 6- Exit                   | --> OK
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    """)
+
+    def erase_combatant(self, row):
+        self.combat.remove(self.combat[row])
+        print(self.combat)
+
+    def exit_initiative(self):
+        exit()
+
+    def initialize_combat(self):
+        # Creates combatants and adds them to the combat container:
+
+        Aiwe = Combatant('Aiwe', 'Nothing', 17)
+        Klescknuk = Combatant('Klescknuk')
+        # Mal = Combatant()
+
+        self.add_combatant(Aiwe.combatant)
+        self.add_combatant(Klescknuk.combatant)
+
+    def general_status(self):
+
+        print('~'*100)
+        print('Number', ' '*(25-7), 'Name', ' '*(25-5), 'Initiative', ' '*(25-11), 'PG', ' '*(25-3))
+        print('~' * 100)
+        for i in self.combat:
+            for j in i:
+                print(j, ' '*(25-len(str(j))), end='')
+            print()
+        print('~' * 100)
+
+
+def check_name(name, matrix):
+    i = 0
+    while i < len(matrix):
+        if matrix[i][1] == name:
+            return i
+        i += 1
+
+    return 'No one'
+
+def check_number(value, charact='Input', name=None):
+
+    # This check will be used specifically to check whether input is a number or not.
+    # 'If' will be useful for initialization of combatants.
+    if value == 'Nothing' and name is not None:
+        value = input('What is {}\'s {} value? --> '.format(name, charact))
+
+    # Common part for every check_input():
+    while True:
+        try:
+            value = int(value)
+        except ValueError:
+            if name == None:
+                value = input('{} has to be a number... --> '.format(charact))
+            else:
+                value = input('{} has to be a number... What is {}\'s {}? --> '.format(charact, name, charact))
+
+        if isinstance(value, int):
+            break
+
+    # Returns a value that is always an int:
+    return value
+
+
+if __name__ == '__main__':
+    Manager()
+
+
 
     # def run(self):
     #     while True:
@@ -132,29 +224,3 @@ class Manager:
     #
     #         if not valid_option:
     #             print('I\'m sorry, you need to enter one of the options (number)')
-
-
-def check_input(name, value, characteristic):
-    # This check will be used specifically to check whether input is a number or not.
-    # 'If' will be useful for initialization of combatants.
-
-    if value == 'Nothing':
-        value = input('What is {}\'s {} value? --> '.format(name, characteristic))
-
-    # Common part for every check_input():
-    while True:
-        try:
-            value = int(value)
-        except ValueError:
-            value = input('{} has to be a number. What is {}\'s initiative value? --> '.format(characteristic, name,
-                                                                                               characteristic))
-
-        if isinstance(value, int):
-            break
-
-    # Returns a value that is always an int:
-    return value
-
-
-if __name__ == '__main__':
-    Manager()
