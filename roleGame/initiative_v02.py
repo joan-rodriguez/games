@@ -8,8 +8,9 @@ class Combatant:
         self.name = self.define_name(name)
         self.initiative = self.define_initiative(self.name, initiative)
         self.pg = self.define_pg(self.name, pg)
+        self.status = ['-']
 
-        self.combatant = [self.order, self.name, self.initiative, self.pg]
+        self.combatant = [self.order, self.name, self.initiative, self.pg, self.status]
 
         print()
 
@@ -37,22 +38,43 @@ class Manager:
         self.round = 0
         self.player_number = 0
 
-        # Options for menu are generated:
-        # self.options = {0: self.general_status, 1: self.attack,
-        #                 2: self.delay_action, 3: self.add_status, 4: self.conduct_delayed_action,
-        #                 5: self.add_combatant, 6: self.exit}
-
         self.initialize_combat()
 
-        self.options = {0: self.general_status, 1: self.attack,
-                        5: self.add_combatant}
-        self.player = self.combat[self.player_number]
+        self.options = {0: self.general_status, 1: self.start_combat, 2: self.attack, 3: self.delay_action,
+                        4: self.add_status, 5: self.conduct_delayed_action,
+                        6: self.add_combatant, 7: self.next_combatant}
 
-    def add_combatant(self, combatant):
+        self.define_player()
+
+    def add_combatant(self, combatant=None):
         # This function adds a new combatant
+        while True:
+            if combatant is None:
+                name = input('What will be the name of this new combatant? (Enter to skip) --> ')
+                if name != '':
+                    combatant = Combatant(name)
+                    combatant = combatant.combatant
+                else:
+                    break
 
-        self.combat.append(combatant)
-        self.arrange_combat()
+            self.combat.append(combatant)
+            self.arrange_combat()
+            break
+
+    def add_status(self):
+        player = self.bucle('What player are you adding a status upon? (Enter to skip) --> ',
+                       'This individual is not part of the combat. What player are you adding a status'
+                       ' upon? (Enter to skip) --> ')
+
+        if player != '':
+            status = input('What status are you adding upon {}? (Enter to skip) --> '.format(self.combat[player][1]))
+            rounds = check_number(input('How many rounds will it last? --> '), status)
+
+            if status != '':
+                if self.combat[player][4] == ['-']:
+                    self.combat[player][4] = [[status, rounds]]
+                else:
+                    self.combat[player][4].append([status, rounds])
 
     def arrange_combat(self):
         # This function is used to sort combatants as per initiative values.
@@ -80,25 +102,17 @@ class Manager:
             num += 1
             i[0] = num
 
-    def attack(self, attacker):
+    def attack(self):
         # Attacker attacks to an individual in combat.
         # Following part identifies individual being attacked:
 
-        while True:
-            injured = check_name(input('Who is {} attacking to? (Enter to skip) --> '.format(
-                attacker[1])), self.combat)
+        attacker = self.player
 
-            if injured == '':
-                break
+        injured = self.bucle('Who is {} attacking to? (Enter to skip) --> '.format(attacker[1]),
+              'This individual is not part of the combat. Who is {} attacking to? (Enter to skip) '
+              '--> '.format(attacker[1]))
 
-            while True:
-                if injured != 'No one':
-                    break
-                injured = check_name(input('This individual is not part of the combat. Who is {} attacking '
-                                           'to? (\'No one\' to continue) --> '.format(attacker[1])), self.combat)
-
-
-
+        if injured != '':
             # Following part checks damage and subtracts it from PGs:
             damage = check_number(input('How much damage does {} do? --> '.format(attacker[1])), 'Damage')
             self.combat[injured][3] -= damage
@@ -111,16 +125,51 @@ class Manager:
                 while True:
                     if dead.upper() == 'Y':
                         self.erase_combatant(injured)
-                        print()
                         break
                     elif dead.upper() == 'N':
-                        print()
                         break
                     else:
                         dead = input(
                             'Is {} dead with {} PG? (Y/N) --> '.format(self.combat[injured][1],
                                                                        self.combat[injured][3]))
 
+    def bucle(self, sentence_1, sentence_2):
+
+        player = check_name(input(sentence_1), self.combat)
+
+        while True:
+            if player != 'No one':
+                break
+            player = check_name(input(sentence_2), self.combat)
+
+            if player == '':
+                break
+
+
+        return player
+
+    def conduct_delayed_action(self):
+
+        conducter = self.bucle('Who does conduct its action? (Enter to skip) --> ',
+                   'This individual is not part of the combat. Who is conducting its action? (Enter to skip) --> ')
+
+        self.combat[conducter][2] = self.player[2] + 0.01
+        self.player = self.combat[conducter]
+        self.arrange_combat()
+
+    def define_player(self):
+        # Defines player based on self.player_number.
+        self.player = self.combat[self.player_number]
+
+    def delay_action(self):
+        # Basically skips player.
+        if self.player[4] == ['-']:
+            self.player[4] = ['Action delayed']
+        else:
+            if 'Action delayed' not in self.player[4]:
+                self.player[4].append('Action delayed')
+
+        self.next_combatant()
 
     def display_menu(self):
         # Displays main menu:
@@ -129,17 +178,18 @@ class Manager:
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     |   o---|==== Menu =====>   |
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    | 0- General Status         | --> OK
+    | 0- General Status         |
+    | 1- Start Combat           |
     |                           |
-    | 1- Attack                 | --> OK
-    | 2- Delay Action           | --> Pending
-    | 3- Add Status             | --> Pending
+    | 2- Attack                 |
+    | 3- Delay Action           |
+    | 4- Add Status             |
     |                           |
-    | 4- Conduct Delayed Action | --> Pending
-    | 5- Add Combatant          | --> OK
+    | 5- Conduct Delayed Action |
+    | 6- Add Combatant          |
     |                           |
-    | 6- End Player's round     | --> Ongoing
-    | 7- Exit                   | --> OK
+    | 7- End Player's round     |
+    | 8- Exit                   |
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     | Round --->""", self.round, end='')
         if self.round < 10:
@@ -158,35 +208,87 @@ class Manager:
         self.combat.remove(self.combat[row])
         print(self.combat)
 
-    def initialize_combat(self):
-        # Creates combatants and adds them to the combat container:
-
-        Aiwe = Combatant('Aiwe', 'Nothing', 17)
-        Klescknuk = Combatant('Klescknuk')
-        # Mal = Combatant()
-
-        self.add_combatant(Aiwe.combatant)
-        self.add_combatant(Klescknuk.combatant)
-
     def general_status(self):
 
-        print('~'*100)
+        print('~'*140)
         print(' '*40, 'ROUND', self.round)
-        print('~' * 100)
-        print('     Number', ' '*(25-7), 'Name', ' '*(25-5), 'Initiative', ' '*(25-11), 'PG', ' '*(25-3))
-        print('~' * 100)
+        print('~' * 140)
+        print('     Number', ' '*(17-len('Number')), 'Name', ' '*(17-len('Name')), 'Initiative',
+              ' '*(18-len('Inititative')), 'PG', ' '*(17-len('PG')), 'Status')
+        print('~' * 140)
         for i in self.combat:
             if i == self.player:
                 print(' --> ', end='')
+
+                for k in i[4]:
+                    if k == 'Action delayed':
+                        i[4].remove(k)
+                if i[4] == []:
+                    i[4] = ['-']
             else:
                 print('     ', end='')
 
             for j in i:
-                print(j, ' '*(25-len(str(j))), end='')
+                if isinstance(j, list) == True:
+                    for k in j:
+                        if isinstance(k, list) == True:
+                            for l in k:
+                                print(l, '', end='')
+                        else:
+                            print(k, end='')
+                        if k != j[-1]:
+                            print(' / ', end='')
+
+                else:
+                    print(j, ' '*(18-len(str(j))), end='')
             print()
-        print('~' * 100)
+        print('~' * 140)
+
+    def initialize_combat(self):
+        # Creates combatants and adds them to the combat container:
+
+        Aiwe = Combatant('Aiwe', 15, 17)
+        Klescknuk = Combatant('Klescknuk', 20, 13)
+        Mal = Combatant('Mal', 12, 15)
+
+        self.add_combatant(Aiwe.combatant)
+        self.add_combatant(Klescknuk.combatant)
+        self.add_combatant(Mal.combatant)
+
+    def next_combatant(self):
+        # Defines next combatant and, if applicable, next round.
+        self.player_number += 1
+
+        if self.player_number > len(self.combat) - 1:
+            self.player_number = 0
+            self.next_round()
+
+        self.define_player()
+        print('Now it is {}\'s round!'.format(self.player[1]))
+
+        for i in self.player[4]:
+            counter_0 = 0
+
+            if isinstance(i, list):
+                counter_1 = 0
+                for j in i:
+                    if isinstance(j, int) == True:
+                        self.player[4][counter_0][counter_1] -= 1
+                        if self.player[4][counter_0][counter_1] == 0:
+                            self.player[4].remove(i)
+                    counter_1 += 1
+
+            counter_0 +=1
+
+    def next_round(self):
+        self.round += 1
 
     def run(self):
+        # This will run the game.
+        # There are two ways of measuring time and they go in parallel:
+        # 1 - self.round --> Global combat round
+        # 2 - self.player_number --> Who is playing inside the current round
+
         while True:
             self.display_menu()
 
@@ -203,15 +305,16 @@ class Manager:
                     self.options[option]()
                     input('\n<enter>\n')
 
-                elif option == 6:
-                    self.player_number += 1
-
-                elif option == 7:
+                elif option == 8:
                     print('\nToday\'s combat is over, but the adventure hasn\'t finished yet...\n')
                     exit()
 
             if not valid_option:
                 print('I\'m sorry, you need to enter one of the options (number)')
+
+    def start_combat(self):
+        self.round = 1
+        self.player = self.combat[0]
 
 
 def check_name(name, matrix):
