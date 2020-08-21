@@ -37,12 +37,13 @@ class Manager:
         self.combat = []
         self.round = 0
         self.player_number = 0
+        self.player = [1, 'No one', 999]
 
         self.initialize_combat()
 
         self.options = {0: self.general_status, 1: self.start_combat, 2: self.attack, 3: self.delay_action,
-                        4: self.add_status, 5: self.conduct_delayed_action,
-                        6: self.add_combatant, 7: self.next_combatant}
+                        4: self.add_status, 5: self.conduct_delayed_action, 6: self.remove_status,
+                        7: self.add_combatant, 8: self.next_combatant}
 
         self.define_player()
 
@@ -59,6 +60,9 @@ class Manager:
 
             self.combat.append(combatant)
             self.arrange_combat()
+            if combatant[2] > self.player[2]:
+                self.player_number += 1
+
             break
 
     def add_status(self):
@@ -186,10 +190,11 @@ class Manager:
     | 4- Add Status             |
     |                           |
     | 5- Conduct Delayed Action |
-    | 6- Add Combatant          |
+    | 6- Remove Status          |
+    | 7- Add Combatant          |
     |                           |
-    | 7- End Player's round     |
-    | 8- Exit                   |
+    | 8- End Player's round     |
+    | 9- Exit                   |
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     | Round --->""", self.round, end='')
         if self.round < 10:
@@ -206,7 +211,6 @@ class Manager:
 
     def erase_combatant(self, row):
         self.combat.remove(self.combat[row])
-        print(self.combat)
 
     def general_status(self):
 
@@ -247,13 +251,26 @@ class Manager:
     def initialize_combat(self):
         # Creates combatants and adds them to the combat container:
 
-        Aiwe = Combatant('Aiwe', 15, 17)
-        Klescknuk = Combatant('Klescknuk', 20, 13)
-        Mal = Combatant('Mal', 12, 15)
+        Aiwe = 'Aiwe'
+        Klescknuk = 'Klescknuk'
+        Mal = 'Mal'
+        Meliodas = 'Meliodas'
+        Momo = 'Momo'
+        Nat = 'Nat'
 
-        self.add_combatant(Aiwe.combatant)
-        self.add_combatant(Klescknuk.combatant)
-        self.add_combatant(Mal.combatant)
+        standard_combatants = [Aiwe, Klescknuk, Mal, Meliodas, Momo, Nat]
+
+        for i in standard_combatants:
+            while True:
+                combating = input('Is {} in the combat? (Y/N) --> '.format(i))
+                if combating.upper() == 'Y':
+                    i = Combatant(i)
+                    self.add_combatant(i.combatant)
+                    break
+                elif combating.upper() == 'N':
+                    break
+                else:
+                    print('This question needs to be answered with \'Y\' or \'N\'... Stop being creative ¬¬')
 
     def next_combatant(self):
         # Defines next combatant and, if applicable, next round.
@@ -266,8 +283,8 @@ class Manager:
         self.define_player()
         print('Now it is {}\'s round!'.format(self.player[1]))
 
+        counter_0 = 0
         for i in self.player[4]:
-            counter_0 = 0
 
             if isinstance(i, list):
                 counter_1 = 0
@@ -282,6 +299,36 @@ class Manager:
 
     def next_round(self):
         self.round += 1
+
+    def remove_status(self):
+        # Removes specified status
+
+        player = self.bucle('What player are you removing a status from? (Enter to skip) --> ',
+                            'This individual is not part of the combat. What player are you removing a status'
+                            ' from? (Enter to skip) --> ')
+
+        if player != '':
+            print('{} has the following active status:'.format(self.combat[player][1]))
+            print()
+            print('    ', end='')
+            for i in self.combat[player][4]:
+                print(i[0], end='    ')
+            print()
+            print()
+            status = input('What status are you removing from {}? (Enter to skip) --> '.format(
+                self.combat[player][1]))
+
+            if status != '':
+                for i in self.combat[player][4]:
+                    counter = 0
+                    for j in i:
+                        counter += 1
+                        if counter > len(i):
+                            print('There is no status as such upon {}!'.format(self.combat[player][1]))
+                        if j == status:
+                            self.combat[player][4].remove(i)
+                            if self.combat[player][4] == []:
+                                self.combat[player][4] = ['-']
 
     def run(self):
         # This will run the game.
@@ -305,7 +352,7 @@ class Manager:
                     self.options[option]()
                     input('\n<enter>\n')
 
-                elif option == 8:
+                elif option == 9:
                     print('\nToday\'s combat is over, but the adventure hasn\'t finished yet...\n')
                     exit()
 
@@ -315,6 +362,8 @@ class Manager:
     def start_combat(self):
         self.round = 1
         self.player = self.combat[0]
+        print()
+        print('----------> Alright! Draw your swords! The combat has begun!! <----------')
 
 
 def check_name(name, matrix):
@@ -356,6 +405,3 @@ def check_number(value, charact='Input', name=None):
 
 if __name__ == '__main__':
     Manager().run()
-
-
-
