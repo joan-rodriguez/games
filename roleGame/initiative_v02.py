@@ -62,7 +62,7 @@ class Manager:
             self.arrange_combat()
             if combatant[2] > self.player[2]:
                 self.player_number += 1
-
+            
             break
 
     def add_status(self):
@@ -361,6 +361,7 @@ class Manager:
 
     def start_combat(self):
         self.round = 1
+        self.player_number = 0
         self.player = self.combat[0]
         print()
         print('----------> Alright! Draw your swords! The combat has begun!! <----------')
